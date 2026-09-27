@@ -1,4 +1,4 @@
-# College Football PLay Prediction
+# College Football Play Prediction
 
 A machine learning project that is interested in investigating whether college football play calls and play outcomes can be predicted from game situation and recent play history.
 
