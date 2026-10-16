@@ -1,13 +1,23 @@
 # College Football Play Prediction
 
-A machine learning project that is interested in investigating whether college football play calls and play outcomes can be predicted from game situation and recent play history.
+This project investigates how predictable offensive play-calling decisions are in college football and whether machine learning can uncover patterns that inform offensive strategy. Using 2025 play-by-play data from the University of Georgia and Indiana University, the project will develop classification models to predict whether an offense will pass or rush based on game situations, team tendencies, and recent play history.
+
+By comparing model performance and examining the features that contribute to predictions, this project aims to identify the situations in which offensive play calls are most predictable. The findings will support data-driven recommendations for coaching staffs to review play-calling tendencies and evaluate potential opportunities to become less predictable.
 
 ## Research Questions
 
-1. Can machine learning predict whether an offense will run or pass?
-2. Does recent play history improve play call prediction?
-3. Can machine learning predict the expected outcome of different play types?
-4. Can a model estimate which play has the highest expected value in a given situation?
+1. How accurately can machine learning predict offensive play selection in college football?
+   - Establish how accurately machine learning models can classify plays as Pass or Rush using information available before the snap.
+3. Which features of game situations contribute most to predictability?
+4. Does recent play history improve predictions beyond current game situations and team tendencies?
+   - Compare models with and without information about previous plays to determine whether sequential patterns provide additional predictive value
+6. How does the predictability of offensive play selection vary across different game situations?
+   - Are certain game situations harder to predict plays?
+   - Group test-set plays by situation and comparing prediction metrics or how often the model correctly predicts Pass vs. Rush
+   - Ex- third and long, trailing late in the game, etc.
+
+## Dataset
+The project uses 2025 college football play-by-play data for University of Georgia and Indiana University. The dataset contains play-level information about game situations, teams, play types, and play outcomes.
 
 ## Planned Features
 
@@ -26,6 +36,7 @@ A machine learning project that is interested in investigating whether college f
 ## Models
 
 - Logistic Regression
+- Regularized Logistic Regression
 - Random Forest
 - XGBoost
 - Neural Network
