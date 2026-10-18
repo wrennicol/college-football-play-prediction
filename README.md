@@ -1,20 +1,17 @@
 # College Football Play Prediction
 
-This project investigates how predictable offensive play-calling decisions are in college football and whether machine learning can uncover patterns that inform offensive strategy. Using 2025 play-by-play data from the University of Georgia and Indiana University, the project will develop classification models to predict whether an offense will pass or rush based on game situations, team tendencies, and recent play history.
+This project investigates how predictable offensive play-calling decisions and play outcomes are in college football and whether machine learning can uncover patterns that inform offensive strategy. Using 2025 play-by-play data from the University of Georgia and Indiana University, the project will develop both classification and regression models using game situations, team tendencies, and recent play history.
 
-By comparing model performance and examining the features that contribute to predictions, this project aims to identify the situations in which offensive play calls are most predictable. The findings will support data-driven recommendations for coaching staffs to review play-calling tendencies and evaluate potential opportunities to become less predictable.
+The classification models will predict whether an offense will pass or rush, while the regression models will estimate expected play outcomes, such as yards gained or Expected Points Added (EPA). By comparing model performance and examining the features that contribute to predictions, this project aims to identify the factors associated with offensive play selection and estimate potential outcomes under different game conditions. The findings will support data-driven recommendations for coaching staffs to review play-calling tendencies and evaluate strategic opportunities.
 
 ## Research Questions
 
 1. How accurately can machine learning predict offensive play selection in college football?
    - Establish how accurately machine learning models can classify plays as Pass or Rush using information available before the snap.
-3. Which features of game situations contribute most to predictability?
-4. Does recent play history improve predictions beyond current game situations and team tendencies?
-   - Compare models with and without information about previous plays to determine whether sequential patterns provide additional predictive value
-6. How does the predictability of offensive play selection vary across different game situations?
-   - Are certain game situations harder to predict plays?
-   - Group test-set plays by situation and comparing prediction metrics or how often the model correctly predicts Pass vs. Rush
-   - Ex- third and long, trailing late in the game, etc.
+2. Which features of game situations contribute most to predictability?
+   - Examine the predictive importance of down, distance, field position, score differential, time remaining, team tendencies, and recent play history.
+3. How many yards can an offense expect to gain in a given situation?
+   - Regression models target EPA, yards gained, or other success metrics
 
 ## Dataset
 The project uses 2025 college football play-by-play data for University of Georgia and Indiana University. The dataset contains play-level information about game situations, teams, play types, and play outcomes.
@@ -35,8 +32,8 @@ The project uses 2025 college football play-by-play data for University of Georg
 
 ## Models
 
-- Logistic Regression
-- Regularized Logistic Regression
+- Logistic/Linear Regression
+- Regularized Logistic/Linear Regression
 - Random Forest
 - XGBoost
 - Neural Network
