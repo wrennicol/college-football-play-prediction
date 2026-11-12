@@ -1,0 +1,80 @@
+{
+  "settings": {
+    "CORR_THRESHOLD": 0.8,
+    "MAX_MISSING": 0.3,
+    "MANUAL_KEEP": [],
+    "PREFER_DROP": [
+      "red_zone",
+      "goal_to_go",
+      "short_yardage",
+      "long_yardage",
+      "two_minute",
+      "trailing_late",
+      "sec_left_game"
+    ],
+    "REG_TARGET": "ppa",
+    "eda_split": "train"
+  },
+  "dropped": {
+    "zero_variance": [],
+    "high_missing": [],
+    "correlated": [
+      {
+        "dropped": "sec_left_game",
+        "kept_instead": "period",
+        "abs_r": 0.963,
+        "rule": "engineered / derived feature",
+        "assoc_with_pass_dropped": 0.111,
+        "assoc_with_pass_kept": 0.121
+      },
+      {
+        "dropped": "long_yardage",
+        "kept_instead": "distance",
+        "abs_r": 0.833,
+        "rule": "engineered / derived feature",
+        "assoc_with_pass_dropped": 0.065,
+        "assoc_with_pass_kept": 0.105
+      }
+    ]
+  },
+  "categorical": [
+    "down",
+    "period"
+  ],
+  "numeric": [
+    "distance",
+    "yardsToGoal",
+    "sec_left_half",
+    "score_diff",
+    "drive_play_num",
+    "prev_yards",
+    "pass_rate_last5",
+    "pass_rate_game_so_far",
+    "team_prior_pass_rate",
+    "team_prior_pass_rate_down"
+  ],
+  "binary": [
+    "is_home",
+    "red_zone",
+    "goal_to_go",
+    "short_yardage",
+    "two_minute",
+    "trailing_late",
+    "first_play_of_game",
+    "prev_same_drive",
+    "prev_call_1",
+    "prev_call_2",
+    "prev_call_3"
+  ],
+  "targets": [
+    "is_pass",
+    "yardsGained",
+    "ppa"
+  ],
+  "optional_categorical": [
+    "offense",
+    "defense"
+  ],
+  "group_column": "gameId",
+  "split_column": "split"
+}

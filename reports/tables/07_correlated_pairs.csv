@@ -1,0 +1,7 @@
+feature_a,feature_b,r,abs_r
+period,sec_left_game,-0.963,0.963
+distance,long_yardage,0.833,0.833
+yardsToGoal,red_zone,-0.729,0.729
+yardsToGoal,drive_play_num,-0.679,0.679
+red_zone,goal_to_go,0.639,0.639
+distance,short_yardage,-0.613,0.613

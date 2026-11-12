@@ -1,0 +1,3 @@
+dropped,kept_instead,abs_r,rule,assoc_with_pass_dropped,assoc_with_pass_kept
+sec_left_game,period,0.963,engineered / derived feature,0.111,0.121
+long_yardage,distance,0.833,engineered / derived feature,0.065,0.105
