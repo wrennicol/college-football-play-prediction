@@ -7,7 +7,7 @@ This project investigates how predictable offensive play-calling decisions and p
 The project focuses on two prediction tasks:
 
 1. **Play Selection (Classification):** Predict whether an offense will Pass or Rush based on pre-snap game situations and historical play tendencies.
-2. **Play Outcome (Regression):** Predict the number of yards gained on an offensive play based on game situations and available pre-snap information.
+2. **Play Outcome (Regression):** Predict the points per average on an offensive play based on game situations and available pre-snap information.
 
 By comparing model performance and examining the features that contribute most to predictions, this project aims to identify patterns in offensive decision-making and evaluate how effectively machine learning can predict play outcomes.
 
