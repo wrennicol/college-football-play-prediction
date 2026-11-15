@@ -1,0 +1,38 @@
+{
+  "best_params": {
+    "max_depth": 8,
+    "max_features": "sqrt",
+    "min_samples_leaf": 1
+  },
+  "cv_roc_auc": 0.6991797164105302,
+  "train_metrics": {
+    "Accuracy": 0.864516129032258,
+    "Precision": 0.9103585657370518,
+    "Recall": 0.7603993344425957,
+    "F1 Score": 0.828649138712602,
+    "ROC AUC": 0.9555924843983788
+  },
+  "test_metrics": {
+    "Accuracy": 0.6666666666666666,
+    "Precision": 0.626984126984127,
+    "Recall": 0.5,
+    "F1 Score": 0.5563380281690141,
+    "ROC AUC": 0.6786536248561565
+  },
+  "test_accuracy_ci95": [
+    0.6216931216931217,
+    0.7142857142857143
+  ],
+  "test_auc_ci95": [
+    0.6278917621775446,
+    0.7320503152985318
+  ],
+  "auc_diff_vs_logistic_ci95": [
+    -0.008718589575677204,
+    0.061591578060175844
+  ],
+  "n_estimators": 500,
+  "tuning_seconds": 24.4,
+  "single_fit_seconds": 0.61,
+  "random_state": 42
+}
