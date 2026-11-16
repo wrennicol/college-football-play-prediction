@@ -1,0 +1,50 @@
+{
+  "best_params": {
+    "activation": "tanh",
+    "alpha": 0.1,
+    "hidden_layer_sizes": [
+      16
+    ],
+    "max_iter": 200
+  },
+  "architecture": "38 inputs -> 16 hidden (tanh) -> 1 output",
+  "epochs_trained": 200,
+  "cv_roc_auc": 0.7131062090737881,
+  "train_metrics": {
+    "Accuracy": 0.7419354838709677,
+    "Precision": 0.7295238095238096,
+    "Recall": 0.6372712146422629,
+    "F1 Score": 0.6802841918294849,
+    "ROC AUC": 0.8163011270049498
+  },
+  "test_metrics_single_run_seed42": {
+    "Accuracy": 0.6534391534391535,
+    "Precision": 0.6097560975609756,
+    "Recall": 0.47468354430379744,
+    "F1 Score": 0.5338078291814946,
+    "ROC AUC": 0.6840046029919447
+  },
+  "test_metrics_mean_over_10_starts": {
+    "Accuracy": 0.6391534391534391,
+    "Precision": 0.5873694648246358,
+    "Recall": 0.46012658227848097,
+    "F1 Score": 0.5159635226605913,
+    "ROC AUC": 0.6655034522439587
+  },
+  "test_accuracy_ci95_seed42_run": [
+    0.6084656084656085,
+    0.701058201058201
+  ],
+  "test_auc_ci95_seed42_run": [
+    0.6340940372888766,
+    0.7363363926792288
+  ],
+  "auc_diff_vs_logistic_ci95_seed42_run": [
+    -0.0009748339346296569,
+    0.06456084767209783
+  ],
+  "test_auc_std_over_10_starts": 0.010721327966250135,
+  "tuning_seconds": 34.0,
+  "single_fit_seconds": 0.4,
+  "random_state": 42
+}
