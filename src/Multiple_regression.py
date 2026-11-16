@@ -1,52 +1,51 @@
 
 """
-Multiple Linear Regression: Predicting College Football PPA
+Multiple Linear Regression: College Football Play Prediction
+
+Default usage from the project root:
+    python src/Multiple_regression.py
+
+Optional:
+    python src/Multiple_regression.py data/processed/model_df.csv
+    python src/Multiple_regression.py --output-dir outputs/ppa_analysis
 
 Target:
     ppa
 
-Data:
-    College football play-by-play dataset with existing train/test splits.
-
-Method:
-    Ordinary Least Squares (OLS), using statsmodels.
-
-Evaluation:
-    Training R-squared and adjusted R-squared
-    Test R-squared, RMSE, and MAE
-    Coefficients, p-values, and confidence intervals
+The script uses the existing train/test split in model_df.csv.
 """
 
 import argparse
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score,
-)
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 # ---------------------------------------------------------
-# 1. CONFIGURATION
+# PROJECT PATHS
+# ---------------------------------------------------------
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+DEFAULT_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "model_df.csv"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "multiple_regression"
+
+
+# ---------------------------------------------------------
+# MODEL CONFIGURATION
 # ---------------------------------------------------------
 
 TARGET = "ppa"
 SPLIT_COLUMN = "split"
 
-# Predictors from the regression configuration.
+# Numeric predictors
 NUMERIC_FEATURES = [
     "distance",
     "yardsToGoal",
-    "sec_left_half",
     "sec_left_game",
     "score_diff",
     "drive_play_num",
@@ -57,6 +56,7 @@ NUMERIC_FEATURES = [
     "team_prior_pass_rate_down",
 ]
 
+# Binary predictors
 BINARY_FEATURES = [
     "is_home",
     "red_zone",
@@ -71,41 +71,76 @@ BINARY_FEATURES = [
     "prev_call_3",
 ]
 
+# Categorical predictors
 CATEGORICAL_FEATURES = [
     "down",
     "period",
 ]
 
-# Optional: include team identities as additional predictors.
-# Set to True to include offense and defense.
-INCLUDE_TEAM_FEATURES = False
-
-OPTIONAL_TEAM_FEATURES = [
-    "offense",
-    "defense",
-]
+FEATURES = (
+    NUMERIC_FEATURES
+    + BINARY_FEATURES
+    + CATEGORICAL_FEATURES
+)
 
 
 # ---------------------------------------------------------
-# 2. LOAD DATA
+# ARGUMENTS
 # ---------------------------------------------------------
 
-def load_data(file_path):
-    df = pd.read_csv(file_path)
-
-    print("\nDataset loaded successfully.")
-    print(f"Rows: {len(df)}")
-    print(f"Columns: {len(df.columns)}")
-
-    required_columns = (
-        [TARGET, SPLIT_COLUMN]
-        + NUMERIC_FEATURES
-        + BINARY_FEATURES
-        + CATEGORICAL_FEATURES
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Run multiple linear regression to predict PPA."
     )
 
-    if INCLUDE_TEAM_FEATURES:
-        required_columns += OPTIONAL_TEAM_FEATURES
+    parser.add_argument(
+        "data",
+        nargs="?",
+        default=str(DEFAULT_DATA_PATH),
+        help="Path to model_df.csv (defaults to data/processed/model_df.csv).",
+    )
+
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help="Directory where regression results will be saved.",
+    )
+
+    return parser.parse_args()
+
+
+def resolve_path(path):
+    """Resolve relative paths from the project root."""
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+
+    return path.resolve()
+
+
+# ---------------------------------------------------------
+# DATA LOADING
+# ---------------------------------------------------------
+
+def load_data(data_path):
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"\nDataset not found:\n{data_path}\n\n"
+            "Make sure model_df.csv exists in data/processed/."
+        )
+
+    df = pd.read_csv(data_path)
+
+    print("\n" + "=" * 65)
+    print("COLLEGE FOOTBALL PPA REGRESSION")
+    print("=" * 65)
+
+    print(f"\nDataset: {data_path}")
+    print(f"Rows: {len(df):,}")
+    print(f"Columns: {len(df.columns)}")
+
+    required_columns = FEATURES + [TARGET, SPLIT_COLUMN]
 
     missing_columns = [
         column for column in required_columns
@@ -114,397 +149,316 @@ def load_data(file_path):
 
     if missing_columns:
         raise ValueError(
-            f"Missing required columns: {missing_columns}"
+            "\nThe dataset is missing required columns:\n"
+            + "\n".join(f"  - {column}" for column in missing_columns)
         )
 
-    return df
+    # Ensure the target is numeric.
+    df[TARGET] = pd.to_numeric(df[TARGET], errors="coerce")
 
-
-# ---------------------------------------------------------
-# 3. PREPARE TRAINING AND TEST DATA
-# ---------------------------------------------------------
-
-def prepare_data(df):
-
-    features = (
-        NUMERIC_FEATURES
-        + BINARY_FEATURES
-        + CATEGORICAL_FEATURES
-    )
-
-    if INCLUDE_TEAM_FEATURES:
-        features += OPTIONAL_TEAM_FEATURES
-
-    # Remove rows where the target is missing.
+    # Remove observations without a target.
     df = df.dropna(subset=[TARGET]).copy()
 
-    # Separate using the existing game-level split.
+    # Normalize split labels.
+    df[SPLIT_COLUMN] = (
+        df[SPLIT_COLUMN]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+
     train_df = df[df[SPLIT_COLUMN] == "train"].copy()
     test_df = df[df[SPLIT_COLUMN] == "test"].copy()
 
     if train_df.empty or test_df.empty:
         raise ValueError(
-            "Could not find both train and test rows. "
-            "Check the values in the split column."
+            "Could not find both 'train' and 'test' observations "
+            "in the split column."
         )
 
-    X_train = train_df[features].copy()
-    X_test = test_df[features].copy()
+    print(f"\nTraining observations: {len(train_df):,}")
+    print(f"Testing observations:  {len(test_df):,}")
+    print(f"Target: {TARGET}")
 
-    y_train = pd.to_numeric(
-        train_df[TARGET], errors="coerce"
-    )
+    return train_df, test_df
 
-    y_test = pd.to_numeric(
-        test_df[TARGET], errors="coerce"
-    )
 
-    # Remove any rows with invalid target values.
-    valid_train = y_train.notna()
-    valid_test = y_test.notna()
+# ---------------------------------------------------------
+# PREPROCESSING
+# ---------------------------------------------------------
 
-    X_train = X_train.loc[valid_train]
-    y_train = y_train.loc[valid_train]
+def prepare_features(train_df, test_df):
+    """
+    Impute missing values using training data only.
+    One-hot encode categorical predictors.
+    Align the test matrix with the training matrix.
+    """
 
-    X_test = X_test.loc[valid_test]
-    y_test = y_test.loc[valid_test]
+    X_train = train_df[FEATURES].copy()
+    X_test = test_df[FEATURES].copy()
 
-    numeric_features = NUMERIC_FEATURES + BINARY_FEATURES
-    categorical_features = CATEGORICAL_FEATURES.copy()
+    # Convert numeric and binary features to numeric values.
+    for column in NUMERIC_FEATURES + BINARY_FEATURES:
+        X_train[column] = pd.to_numeric(
+            X_train[column], errors="coerce"
+        )
+        X_test[column] = pd.to_numeric(
+            X_test[column], errors="coerce"
+        )
 
-    if INCLUDE_TEAM_FEATURES:
-        categorical_features += OPTIONAL_TEAM_FEATURES
+        # Use training median for missing values.
+        median_value = X_train[column].median()
 
-    print("\nData split:")
-    print(f"Training observations: {len(X_train)}")
-    print(f"Testing observations:  {len(X_test)}")
+        if pd.isna(median_value):
+            median_value = 0
 
-    return (
+        X_train[column] = X_train[column].fillna(median_value)
+        X_test[column] = X_test[column].fillna(median_value)
+
+    # Convert categorical features to strings.
+    for column in CATEGORICAL_FEATURES:
+        X_train[column] = X_train[column].astype("string")
+        X_test[column] = X_test[column].astype("string")
+
+        # Use the training mode for missing values.
+        modes = X_train[column].mode(dropna=True)
+        fill_value = modes.iloc[0] if not modes.empty else "Unknown"
+
+        X_train[column] = X_train[column].fillna(fill_value).astype(str)
+        X_test[column] = X_test[column].fillna(fill_value).astype(str)
+
+    # One-hot encode categorical features.
+    X_train = pd.get_dummies(
         X_train,
+        columns=CATEGORICAL_FEATURES,
+        drop_first=True,
+        dtype=float,
+    )
+
+    X_test = pd.get_dummies(
         X_test,
-        y_train,
-        y_test,
-        numeric_features,
-        categorical_features,
+        columns=CATEGORICAL_FEATURES,
+        drop_first=True,
+        dtype=float,
     )
+
+    # Make sure test columns match training columns.
+    X_test = X_test.reindex(
+        columns=X_train.columns,
+        fill_value=0,
+    )
+
+    # Statsmodels requires numeric values.
+    X_train = X_train.astype(float)
+    X_test = X_test.astype(float)
+
+    # Remove predictors that have no variation in training data.
+    constant_columns = [
+        column for column in X_train.columns
+        if X_train[column].nunique() <= 1
+    ]
+
+    if constant_columns:
+        print("\nRemoving constant predictors:")
+        for column in constant_columns:
+            print(f"  - {column}")
+
+        X_train = X_train.drop(columns=constant_columns)
+        X_test = X_test.drop(columns=constant_columns)
+
+    print(f"\nRegression predictors: {len(X_train.columns)}")
+
+    return X_train, X_test
 
 
 # ---------------------------------------------------------
-# 4. PREPROCESS FEATURES
+# MODEL TRAINING
 # ---------------------------------------------------------
 
-def preprocess_features(
-    X_train,
-    X_test,
-    numeric_features,
-    categorical_features,
-):
+def train_model(X_train, y_train):
+    # Add the intercept.
+    X_train = sm.add_constant(X_train, has_constant="add")
 
-    # Numeric missing values are replaced with training medians.
-    numeric_pipeline = Pipeline(
-        steps=[
-            ("imputer", SimpleImputer(strategy="median")),
-        ]
-    )
+    # Check for exact linear dependencies.
+    matrix_rank = np.linalg.matrix_rank(X_train.to_numpy())
 
-    # Categorical missing values are replaced with the
-    # most frequent training category.
-    categorical_pipeline = Pipeline(
-        steps=[
-            ("imputer", SimpleImputer(strategy="most_frequent")),
-            (
-                "onehot",
-                OneHotEncoder(
-                    drop="first",
-                    handle_unknown="ignore",
-                    sparse_output=False,
-                ),
-            ),
-        ]
-    )
+    if matrix_rank < X_train.shape[1]:
+        warnings.warn(
+            "The regression design matrix is rank-deficient. "
+            "Some predictors are linearly dependent.",
+            RuntimeWarning,
+        )
+        print(
+            f"\nWARNING: Matrix rank is {matrix_rank}, "
+            f"but there are {X_train.shape[1]} columns."
+        )
 
-    # Combine numeric and categorical preprocessing.
-    preprocessor = ColumnTransformer(
-        transformers=[
-            (
-                "numeric",
-                numeric_pipeline,
-                numeric_features,
-            ),
-            (
-                "categorical",
-                categorical_pipeline,
-                categorical_features,
-            ),
-        ],
-        verbose_feature_names_out=False,
-    )
+    # Fit OLS with heteroskedasticity-robust standard errors.
+    model = sm.OLS(y_train, X_train).fit(cov_type="HC3")
 
-    # Fit preprocessing ONLY on training data.
-    X_train_processed = preprocessor.fit_transform(X_train)
-
-    # Apply the same transformations to test data.
-    X_test_processed = preprocessor.transform(X_test)
-
-    feature_names = preprocessor.get_feature_names_out()
-
-    X_train_processed = pd.DataFrame(
-        X_train_processed,
-        columns=feature_names,
-        index=X_train.index,
-    )
-
-    X_test_processed = pd.DataFrame(
-        X_test_processed,
-        columns=feature_names,
-        index=X_test.index,
-    )
-
-    # Ensure all values are numeric and finite.
-    X_train_processed = X_train_processed.astype(float)
-    X_test_processed = X_test_processed.astype(float)
-
-    if not np.isfinite(X_train_processed.to_numpy()).all():
-        raise ValueError("Non-finite values found in training predictors.")
-
-    if not np.isfinite(X_test_processed.to_numpy()).all():
-        raise ValueError("Non-finite values found in test predictors.")
-
-    return X_train_processed, X_test_processed
+    return model, X_train
 
 
 # ---------------------------------------------------------
-# 5. FIT MULTIPLE LINEAR REGRESSION
+# EVALUATION
 # ---------------------------------------------------------
 
-def fit_regression(X_train, y_train):
+def evaluate_model(model, X_train, X_test, y_train, y_test):
+    X_test = sm.add_constant(X_test, has_constant="add")
 
-    # Add intercept.
-    X_train_constant = sm.add_constant(
-        X_train,
-        has_constant="add",
+    # Match the exact training column order.
+    X_test = X_test.reindex(
+        columns=X_train.columns,
+        fill_value=0,
     )
 
-    # Fit Ordinary Least Squares regression.
-    model = sm.OLS(
-        y_train.astype(float),
-        X_train_constant,
-    )
+    train_predictions = model.predict(X_train)
+    test_predictions = model.predict(X_test)
 
-    # HC3 robust standard errors help account for
-    # heteroskedasticity in play-level observations.
-    results = model.fit(cov_type="HC3")
-
-    return results
-
-
-# ---------------------------------------------------------
-# 6. EVALUATE MODEL
-# ---------------------------------------------------------
-
-def evaluate_model(results, X_train, X_test, y_train, y_test):
-
-    # Training predictions.
-    X_train_constant = sm.add_constant(
-        X_train,
-        has_constant="add",
-    )
-
-    train_predictions = results.predict(X_train_constant)
-
-    # Test predictions.
-    X_test_constant = sm.add_constant(
-        X_test,
-        has_constant="add",
-    )
-
-    test_predictions = results.predict(X_test_constant)
-
-    # Training metrics.
     train_r2 = r2_score(y_train, train_predictions)
-
-    n = len(y_train)
-    p = len(X_train.columns)
-
-    if n > p + 1:
-        adjusted_r2 = (
-            1 - (1 - train_r2) * (n - 1) / (n - p - 1)
-        )
-    else:
-        adjusted_r2 = np.nan
-
-    # Test metrics.
     test_r2 = r2_score(y_test, test_predictions)
 
-    test_rmse = np.sqrt(
-        mean_squared_error(y_test, test_predictions)
-    )
+    train_rmse = np.sqrt(mean_squared_error(y_train, train_predictions))
+    test_rmse = np.sqrt(mean_squared_error(y_test, test_predictions))
 
-    test_mae = mean_absolute_error(
-        y_test,
-        test_predictions,
-    )
+    train_mae = mean_absolute_error(y_train, train_predictions)
+    test_mae = mean_absolute_error(y_test, test_predictions)
 
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 65)
     print("MODEL PERFORMANCE")
-    print("=" * 60)
+    print("=" * 65)
 
-    print("\nTraining Performance:")
-    print(f"R-squared:           {train_r2:.4f}")
-    print(f"Adjusted R-squared:  {adjusted_r2:.4f}")
+    print("\nTraining Set")
+    print(f"R-squared:          {train_r2:.4f}")
+    print(f"Adjusted R-squared: {model.rsquared_adj:.4f}")
+    print(f"RMSE:               {train_rmse:.4f}")
+    print(f"MAE:                {train_mae:.4f}")
 
-    print("\nTest Performance:")
-    print(f"R-squared:           {test_r2:.4f}")
-    print(f"RMSE:                {test_rmse:.4f}")
-    print(f"MAE:                 {test_mae:.4f}")
+    print("\nTesting Set")
+    print(f"R-squared:          {test_r2:.4f}")
+    print(f"RMSE:               {test_rmse:.4f}")
+    print(f"MAE:                {test_mae:.4f}")
 
-    return train_predictions, test_predictions
+    print("\n" + "=" * 65)
 
-
-# ---------------------------------------------------------
-# 7. DISPLAY REGRESSION RESULTS
-# ---------------------------------------------------------
-
-def display_results(results):
-
-    print("\n" + "=" * 60)
-    print("OLS REGRESSION SUMMARY")
-    print("=" * 60)
-
-    print(results.summary())
-
-    # Create a coefficient table.
-    coefficient_table = pd.DataFrame({
-        "Coefficient": results.params,
-        "Std Error (HC3)": results.bse,
-        "P-value": results.pvalues,
-        "CI Lower": results.conf_int()[0],
-        "CI Upper": results.conf_int()[1],
-    })
-
-    coefficient_table["Significant (0.05)"] = (
-        coefficient_table["P-value"] < 0.05
-    )
-
-    coefficient_table = coefficient_table.sort_values(
-        by="P-value"
-    )
-
-    print("\n" + "=" * 60)
-    print("COEFFICIENTS AND STATISTICAL SIGNIFICANCE")
-    print("=" * 60)
-
-    print(coefficient_table.to_string())
-
-    return coefficient_table
+    return test_predictions
 
 
 # ---------------------------------------------------------
-# 8. SAVE OUTPUTS
+# SAVE RESULTS
 # ---------------------------------------------------------
 
 def save_results(
-    results,
-    coefficient_table,
-    y_test,
+    model,
+    test_df,
     test_predictions,
+    output_dir,
 ):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    coefficient_table.to_csv(
-        "ppa_regression_coefficients.csv"
-    )
+    # Save coefficients, p-values, and confidence intervals.
+    confidence_intervals = model.conf_int()
 
-    predictions = pd.DataFrame({
-        "Actual_PPA": y_test,
-        "Predicted_PPA": test_predictions,
-        "Residual": y_test - test_predictions,
+    coefficients = pd.DataFrame({
+        "feature": model.params.index,
+        "coefficient": model.params.values,
+        "standard_error": model.bse.values,
+        "p_value": model.pvalues.values,
+        "ci_lower": confidence_intervals.iloc[:, 0].values,
+        "ci_upper": confidence_intervals.iloc[:, 1].values,
     })
 
-    predictions.to_csv(
-        "ppa_regression_predictions.csv",
-        index=True,
+    coefficients["significant_at_0.05"] = (
+        coefficients["p_value"] < 0.05
     )
 
-    with open("ppa_regression_summary.txt", "w") as file:
-        file.write(results.summary().as_text())
+    coefficients = coefficients.sort_values(
+        "p_value",
+        ascending=True,
+    )
 
-    print("\nSaved files:")
-    print("- ppa_regression_coefficients.csv")
-    print("- ppa_regression_predictions.csv")
-    print("- ppa_regression_summary.txt")
+    coefficients.to_csv(
+        output_dir / "ppa_regression_coefficients.csv",
+        index=False,
+    )
+
+    # Save test predictions.
+    prediction_columns = [
+        column for column in ["id", "gameId", "offense", "defense"]
+        if column in test_df.columns
+    ]
+
+    predictions = test_df[prediction_columns].copy()
+    predictions["actual_ppa"] = test_df[TARGET].values
+    predictions["predicted_ppa"] = test_predictions
+    predictions["residual"] = (
+        predictions["actual_ppa"] - predictions["predicted_ppa"]
+    )
+
+    predictions.to_csv(
+        output_dir / "ppa_regression_predictions.csv",
+        index=False,
+    )
+
+    # Save the complete statistical summary.
+    with open(
+        output_dir / "ppa_regression_summary.txt",
+        "w",
+        encoding="utf-8",
+    ) as file:
+        file.write(model.summary().as_text())
+
+    print("\nRESULTS SAVED")
+    print(f"Output directory: {output_dir}")
+    print("  - ppa_regression_coefficients.csv")
+    print("  - ppa_regression_predictions.csv")
+    print("  - ppa_regression_summary.txt")
 
 
 # ---------------------------------------------------------
-# 9. MAIN
+# MAIN
 # ---------------------------------------------------------
 
 def main():
+    args = parse_arguments()
 
-    parser = argparse.ArgumentParser(
-        description="Multiple linear regression predicting PPA."
-    )
-
-    parser.add_argument(
-        "csv_file",
-        nargs="?",
-        default="college_football_plays.csv",
-        help="Path to the play-by-play CSV file.",
-    )
-
-    args = parser.parse_args()
-
-    print("=" * 60)
-    print("COLLEGE FOOTBALL PPA MULTIPLE REGRESSION")
-    print("=" * 60)
+    data_path = resolve_path(args.data)
+    output_dir = resolve_path(args.output_dir)
 
     # Load data.
-    df = load_data(args.csv_file)
+    train_df, test_df = load_data(data_path)
 
-    # Prepare train/test data.
-    (
+    # Separate target.
+    y_train = train_df[TARGET].astype(float)
+    y_test = test_df[TARGET].astype(float)
+
+    # Prepare predictors.
+    X_train, X_test = prepare_features(train_df, test_df)
+
+    # Train model.
+    model, X_train = train_model(X_train, y_train)
+
+    # Print statistical summary.
+    print("\n" + "=" * 65)
+    print("OLS REGRESSION SUMMARY")
+    print("=" * 65)
+    print(model.summary())
+
+    # Evaluate model.
+    test_predictions = evaluate_model(
+        model,
         X_train,
         X_test,
-        y_train,
-        y_test,
-        numeric_features,
-        categorical_features,
-    ) = prepare_data(df)
-
-    # Preprocess predictors.
-    X_train_processed, X_test_processed = preprocess_features(
-        X_train,
-        X_test,
-        numeric_features,
-        categorical_features,
-    )
-
-    print("\nNumber of regression predictors after encoding:")
-    print(len(X_train_processed.columns))
-
-    # Fit OLS regression.
-    results = fit_regression(
-        X_train_processed,
-        y_train,
-    )
-
-    # Display coefficients and p-values.
-    coefficient_table = display_results(results)
-
-    # Evaluate predictions.
-    train_predictions, test_predictions = evaluate_model(
-        results,
-        X_train_processed,
-        X_test_processed,
         y_train,
         y_test,
     )
 
     # Save outputs.
     save_results(
-        results,
-        coefficient_table,
-        y_test,
+        model,
+        test_df,
         test_predictions,
+        output_dir,
     )
 
     print("\nRegression completed successfully.")
