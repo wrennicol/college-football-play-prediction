@@ -1,0 +1,49 @@
+COLLEGE FOOTBALL RIDGE REGRESSION
+============================================================
+
+Target: ppa
+Best alpha: 100
+Best CV RMSE: 1.3410
+
+TRAINING PERFORMANCE
+------------------------------------------------------------
+R_squared: 0.0454
+RMSE: 1.3151
+MAE: 0.9473
+
+TESTING PERFORMANCE
+------------------------------------------------------------
+R_squared: 0.0271
+RMSE: 1.2660
+MAE: 0.9001
+
+MODEL COEFFICIENTS
+------------------------------------------------------------
+                           feature  coefficient  absolute_coefficient
+               categorical__down_3     0.288741              0.288741
+                  binary__red_zone     0.151596              0.151596
+             categorical__period_3     0.124168              0.124168
+               categorical__down_4    -0.122537              0.122537
+             categorical__period_4    -0.115083              0.115083
+                   binary__is_home     0.107582              0.107582
+             binary__trailing_late     0.098172              0.098172
+               binary__prev_call_2    -0.096548              0.096548
+               numeric__score_diff     0.084702              0.084702
+          numeric__pass_rate_last5     0.084512              0.084512
+           numeric__drive_play_num     0.081920              0.081920
+              numeric__yardsToGoal     0.080203              0.080203
+               numeric__prev_yards    -0.067181              0.067181
+     numeric__team_prior_pass_rate    -0.053730              0.053730
+                binary__goal_to_go     0.051916              0.051916
+               binary__prev_call_1    -0.051184              0.051184
+               binary__prev_call_3    -0.036239              0.036239
+                binary__two_minute    -0.034089              0.034089
+           binary__prev_same_drive    -0.029286              0.029286
+             categorical__period_2     0.025055              0.025055
+            numeric__sec_left_game     0.021992              0.021992
+    numeric__pass_rate_game_so_far     0.013784              0.013784
+             binary__short_yardage    -0.013585              0.013585
+numeric__team_prior_pass_rate_down    -0.007257              0.007257
+               categorical__down_2     0.006387              0.006387
+                 numeric__distance    -0.002492              0.002492
+        binary__first_play_of_game    -0.000680              0.000680

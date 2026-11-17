@@ -1,25 +1,3 @@
-
-"""
-Ridge Regression: College Football Play Prediction
-
-Run from the project root:
-    python src/Ridge_regression.py
-
-Optional:
-    python src/Ridge_regression.py data/processed/model_df.csv
-
-Target:
-    ppa
-
-Uses:
-    - Existing train/test split
-    - StandardScaler
-    - OneHotEncoder
-    - Ridge regression
-    - Cross-validation to select the best alpha
-    - GroupKFold by gameId to prevent game-level leakage
-"""
-
 import argparse
 from pathlib import Path
 
@@ -39,10 +17,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
-# ---------------------------------------------------------
-# PROJECT PATHS
-# ---------------------------------------------------------
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_DATA_PATH = (
@@ -52,11 +26,6 @@ DEFAULT_DATA_PATH = (
 DEFAULT_OUTPUT_DIR = (
     PROJECT_ROOT / "outputs" / "ridge_regression"
 )
-
-
-# ---------------------------------------------------------
-# MODEL CONFIGURATION
-# ---------------------------------------------------------
 
 TARGET = "ppa"
 SPLIT_COLUMN = "split"
@@ -111,11 +80,6 @@ ALPHA_VALUES = [
     1000,
 ]
 
-
-# ---------------------------------------------------------
-# ARGUMENTS AND PATHS
-# ---------------------------------------------------------
-
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Run Ridge regression to predict PPA."
@@ -145,10 +109,6 @@ def resolve_path(path):
 
     return path.resolve()
 
-
-# ---------------------------------------------------------
-# LOAD DATA
-# ---------------------------------------------------------
 
 def load_data(data_path):
 
@@ -214,10 +174,6 @@ def load_data(data_path):
 
     return train_df, test_df
 
-
-# ---------------------------------------------------------
-# PREPROCESSING PIPELINE
-# ---------------------------------------------------------
 
 def build_pipeline():
 
@@ -290,9 +246,6 @@ def build_pipeline():
     return pipeline
 
 
-# ---------------------------------------------------------
-# CROSS-VALIDATION AND MODEL TRAINING
-# ---------------------------------------------------------
 
 def train_model(X_train, y_train, groups):
 
@@ -349,9 +302,6 @@ def train_model(X_train, y_train, groups):
     return search, best_model
 
 
-# ---------------------------------------------------------
-# MODEL EVALUATION
-# ---------------------------------------------------------
 
 def calculate_metrics(y_true, predictions):
 
@@ -404,9 +354,6 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
     )
 
 
-# ---------------------------------------------------------
-# COEFFICIENT EXTRACTION
-# ---------------------------------------------------------
 
 def get_coefficients(model):
 
@@ -432,10 +379,6 @@ def get_coefficients(model):
     return coefficients
 
 
-# ---------------------------------------------------------
-# SAVE RESULTS
-# ---------------------------------------------------------
-
 def save_results(
     model,
     search,
@@ -453,11 +396,6 @@ def save_results(
 
     # Save coefficients.
     coefficients = get_coefficients(model)
-
-    coefficients.to_csv(
-        output_dir / "ridge_regression_coefficients.csv",
-        index=False,
-    )
 
     # Save test predictions.
     id_columns = [
@@ -481,18 +419,9 @@ def save_results(
         - predictions["predicted_ppa"]
     )
 
-    predictions.to_csv(
-        output_dir / "ridge_regression_predictions.csv",
-        index=False,
-    )
 
     # Save cross-validation results.
     cv_results = pd.DataFrame(search.cv_results_)
-
-    cv_results.to_csv(
-        output_dir / "ridge_cross_validation.csv",
-        index=False,
-    )
 
     # Save model summary.
     summary_path = (
@@ -541,15 +470,8 @@ def save_results(
 
     print(f"\nOutput directory: {output_dir}")
 
-    print("  - ridge_regression_coefficients.csv")
-    print("  - ridge_regression_predictions.csv")
-    print("  - ridge_cross_validation.csv")
     print("  - ridge_regression_summary.txt")
 
-
-# ---------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------
 
 def main():
 

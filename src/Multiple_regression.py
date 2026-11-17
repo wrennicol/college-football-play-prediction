@@ -1,20 +1,3 @@
-
-"""
-Multiple Linear Regression: College Football Play Prediction
-
-Default usage from the project root:
-    python src/Multiple_regression.py
-
-Optional:
-    python src/Multiple_regression.py data/processed/model_df.csv
-    python src/Multiple_regression.py --output-dir outputs/ppa_analysis
-
-Target:
-    ppa
-
-The script uses the existing train/test split in model_df.csv.
-"""
-
 import argparse
 import warnings
 from pathlib import Path
@@ -25,19 +8,12 @@ import statsmodels.api as sm
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
-# ---------------------------------------------------------
-# PROJECT PATHS
-# ---------------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "model_df.csv"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "multiple_regression"
 
-
-# ---------------------------------------------------------
-# MODEL CONFIGURATION
-# ---------------------------------------------------------
 
 TARGET = "ppa"
 SPLIT_COLUMN = "split"
@@ -84,10 +60,6 @@ FEATURES = (
 )
 
 
-# ---------------------------------------------------------
-# ARGUMENTS
-# ---------------------------------------------------------
-
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Run multiple linear regression to predict PPA."
@@ -118,10 +90,6 @@ def resolve_path(path):
 
     return path.resolve()
 
-
-# ---------------------------------------------------------
-# DATA LOADING
-# ---------------------------------------------------------
 
 def load_data(data_path):
     if not data_path.exists():
@@ -182,10 +150,6 @@ def load_data(data_path):
 
     return train_df, test_df
 
-
-# ---------------------------------------------------------
-# PREPROCESSING
-# ---------------------------------------------------------
 
 def prepare_features(train_df, test_df):
     """
@@ -271,10 +235,6 @@ def prepare_features(train_df, test_df):
     return X_train, X_test
 
 
-# ---------------------------------------------------------
-# MODEL TRAINING
-# ---------------------------------------------------------
-
 def train_model(X_train, y_train):
     # Add the intercept.
     X_train = sm.add_constant(X_train, has_constant="add")
@@ -298,10 +258,6 @@ def train_model(X_train, y_train):
 
     return model, X_train
 
-
-# ---------------------------------------------------------
-# EVALUATION
-# ---------------------------------------------------------
 
 def evaluate_model(model, X_train, X_test, y_train, y_test):
     X_test = sm.add_constant(X_test, has_constant="add")
@@ -343,11 +299,6 @@ def evaluate_model(model, X_train, X_test, y_train, y_test):
 
     return test_predictions
 
-
-# ---------------------------------------------------------
-# SAVE RESULTS
-# ---------------------------------------------------------
-
 def save_results(
     model,
     test_df,
@@ -377,11 +328,6 @@ def save_results(
         ascending=True,
     )
 
-    coefficients.to_csv(
-        output_dir / "ppa_regression_coefficients.csv",
-        index=False,
-    )
-
     # Save test predictions.
     prediction_columns = [
         column for column in ["id", "gameId", "offense", "defense"]
@@ -395,11 +341,6 @@ def save_results(
         predictions["actual_ppa"] - predictions["predicted_ppa"]
     )
 
-    predictions.to_csv(
-        output_dir / "ppa_regression_predictions.csv",
-        index=False,
-    )
-
     # Save the complete statistical summary.
     with open(
         output_dir / "ppa_regression_summary.txt",
@@ -410,14 +351,8 @@ def save_results(
 
     print("\nRESULTS SAVED")
     print(f"Output directory: {output_dir}")
-    print("  - ppa_regression_coefficients.csv")
-    print("  - ppa_regression_predictions.csv")
     print("  - ppa_regression_summary.txt")
 
-
-# ---------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------
 
 def main():
     args = parse_arguments()
