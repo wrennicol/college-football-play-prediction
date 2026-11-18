@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "activation": "relu",
+    "alpha": 10.0,
+    "hidden_layer_sizes": [
+      16
+    ],
+    "max_iter": 200
+  },
+  "cv_rmse": 1.3323722271789031,
+  "null_cv_rmse": 1.346412187374982,
+  "seed_test_rmse_mean": 1.261779405504853,
+  "seed_test_rmse_std": 0.0014241528976269733,
+  "bootstrap_rmse_gain": 0.02405549396985245,
+  "bootstrap_ci": [
+    0.004804270889660067,
+    0.04252119752550237
+  ]
+}
