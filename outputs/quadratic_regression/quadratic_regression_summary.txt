@@ -1,0 +1,105 @@
+COLLEGE FOOTBALL QUADRATIC REGRESSION
+====================================================================
+
+Target: ppa
+Numeric predictors expanded to degree-2 polynomial terms.
+Binary and categorical predictors included as main effects.
+Number of expanded predictors: 82
+
+TRAINING PERFORMANCE
+--------------------------------------------------------------------
+R_squared: 0.1042
+RMSE: 1.2739
+MAE: 0.9261
+
+TESTING PERFORMANCE
+--------------------------------------------------------------------
+R_squared: -0.0011
+RMSE: 1.2843
+MAE: 0.9132
+
+COEFFICIENTS
+--------------------------------------------------------------------
+                                                           feature  coefficient  absolute_coefficient
+                                               categorical__down_3     0.596541              0.596541
+                                                  binary__red_zone     0.553301              0.553301
+                                               categorical__down_4    -0.300172              0.300172
+                                             binary__trailing_late     0.288189              0.288189
+                                    numeric_quadratic__yardsToGoal     0.221966              0.221966
+                                               binary__prev_call_2    -0.204075              0.204075
+                                                binary__goal_to_go     0.202806              0.202806
+                                             categorical__period_4    -0.201127              0.201127
+                                               categorical__down_2     0.163104              0.163104
+                                             categorical__period_2    -0.159026              0.159026
+                                           binary__prev_same_drive    -0.151915              0.151915
+                                               binary__prev_call_1    -0.146200              0.146200
+        numeric_quadratic__sec_left_game team_prior_pass_rate_down     0.131717              0.131717
+                                     numeric_quadratic__score_diff     0.129318              0.129318
+                                             binary__short_yardage     0.129122              0.129122
+                                numeric_quadratic__sec_left_game^2    -0.118047              0.118047
+                     numeric_quadratic__yardsToGoal drive_play_num     0.108280              0.108280
+                                 numeric_quadratic__drive_play_num     0.101067              0.101067
+           numeric_quadratic__drive_play_num pass_rate_game_so_far     0.099101              0.099101
+                                       numeric_quadratic__distance     0.096537              0.096537
+                                numeric_quadratic__pass_rate_last5     0.094136              0.094136
+               numeric_quadratic__score_diff pass_rate_game_so_far    -0.091572              0.091572
+                                                   binary__is_home     0.091451              0.091451
+                      numeric_quadratic__drive_play_num prev_yards    -0.090428              0.090428
+                                               binary__prev_call_3    -0.087975              0.087975
+             numeric_quadratic__distance team_prior_pass_rate_down    -0.086702              0.086702
+ numeric_quadratic__team_prior_pass_rate team_prior_pass_rate_down     0.085716              0.085716
+          numeric_quadratic__pass_rate_last5 pass_rate_game_so_far    -0.084941              0.084941
+                         numeric_quadratic__yardsToGoal prev_yards    -0.083180              0.083180
+                  numeric_quadratic__distance team_prior_pass_rate    -0.082015              0.082015
+                numeric_quadratic__score_diff team_prior_pass_rate    -0.081894              0.081894
+                                        binary__first_play_of_game     0.079313              0.079313
+                  numeric_quadratic__sec_left_game pass_rate_last5    -0.077813              0.077813
+                                  numeric_quadratic__yardsToGoal^2    -0.072802              0.072802
+                        numeric_quadratic__pass_rate_game_so_far^2     0.068151              0.068151
+                         numeric_quadratic__distance sec_left_game     0.067822              0.067822
+                 numeric_quadratic__drive_play_num pass_rate_last5    -0.066218              0.066218
+                               numeric_quadratic__drive_play_num^2     0.064885              0.064885
+                            numeric_quadratic__distance score_diff    -0.062237              0.062237
+           numeric_quadratic__score_diff team_prior_pass_rate_down     0.062184              0.062184
+           numeric_quadratic__pass_rate_last5 team_prior_pass_rate    -0.061516              0.061516
+                      numeric_quadratic__team_prior_pass_rate_down    -0.061026              0.061026
+                                     numeric_quadratic__prev_yards    -0.055937              0.055937
+                       numeric_quadratic__sec_left_game score_diff     0.053816              0.053816
+                      numeric_quadratic__yardsToGoal sec_left_game    -0.053727              0.053727
+                                  numeric_quadratic__sec_left_game     0.051842              0.051842
+           numeric_quadratic__prev_yards team_prior_pass_rate_down     0.051533              0.051533
+                            numeric_quadratic__distance prev_yards     0.048304              0.048304
+             numeric_quadratic__sec_left_game team_prior_pass_rate    -0.047743              0.047743
+                          numeric_quadratic__pass_rate_game_so_far     0.047179              0.047179
+                                             categorical__period_3    -0.045437              0.045437
+                           numeric_quadratic__distance yardsToGoal     0.043263              0.043263
+                          numeric_quadratic__score_diff prev_yards    -0.040512              0.040512
+                      numeric_quadratic__score_diff drive_play_num     0.036878              0.036878
+                     numeric_quadratic__prev_yards pass_rate_last5    -0.035637              0.035637
+                         numeric_quadratic__yardsToGoal score_diff    -0.033076              0.033076
+                   numeric_quadratic__sec_left_game drive_play_num     0.030033              0.030033
+                                                binary__two_minute     0.028942              0.028942
+                                     numeric_quadratic__distance^2    -0.028684              0.028684
+                         numeric_quadratic__team_prior_pass_rate^2     0.027911              0.027911
+            numeric_quadratic__drive_play_num team_prior_pass_rate     0.026255              0.026255
+                                   numeric_quadratic__score_diff^2     0.024628              0.024628
+          numeric_quadratic__yardsToGoal team_prior_pass_rate_down     0.023761              0.023761
+                numeric_quadratic__prev_yards team_prior_pass_rate     0.022514              0.022514
+                    numeric_quadratic__yardsToGoal pass_rate_last5    -0.022420              0.022420
+              numeric_quadratic__yardsToGoal pass_rate_game_so_far    -0.021935              0.021935
+               numeric_quadratic__yardsToGoal team_prior_pass_rate     0.020723              0.020723
+                     numeric_quadratic__score_diff pass_rate_last5    -0.020122              0.020122
+     numeric_quadratic__pass_rate_game_so_far team_prior_pass_rate     0.019561              0.019561
+                              numeric_quadratic__pass_rate_last5^2     0.017861              0.017861
+            numeric_quadratic__sec_left_game pass_rate_game_so_far    -0.016157              0.016157
+                       numeric_quadratic__distance pass_rate_last5     0.013702              0.013702
+       numeric_quadratic__drive_play_num team_prior_pass_rate_down    -0.013181              0.013181
+      numeric_quadratic__pass_rate_last5 team_prior_pass_rate_down     0.012711              0.012711
+                       numeric_quadratic__sec_left_game prev_yards    -0.012700              0.012700
+numeric_quadratic__pass_rate_game_so_far team_prior_pass_rate_down    -0.011225              0.011225
+                                   numeric_quadratic__prev_yards^2    -0.008291              0.008291
+                    numeric_quadratic__team_prior_pass_rate_down^2     0.005159              0.005159
+               numeric_quadratic__prev_yards pass_rate_game_so_far     0.004650              0.004650
+                        numeric_quadratic__distance drive_play_num     0.003280              0.003280
+                           numeric_quadratic__team_prior_pass_rate    -0.001180              0.001180
+                 numeric_quadratic__distance pass_rate_game_so_far     0.001030              0.001030
