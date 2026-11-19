@@ -3,8 +3,8 @@
 Dep. Variable:                    ppa   R-squared:                       0.054
 Model:                            OLS   Adj. R-squared:                  0.035
 Method:                 Least Squares   F-statistic:                     2.694
-Date:                Tue, 17 Nov 2026   Prob (F-statistic):           6.81e-06
-Time:                        15:13:18   Log-Likelihood:                -2353.6
+Date:                Wed, 18 Nov 2026   Prob (F-statistic):           6.81e-06
+Time:                        16:31:57   Log-Likelihood:                -2353.6
 No. Observations:                1394   AIC:                             4763.
 Df Residuals:                    1366   BIC:                             4910.
 Df Model:                          27                                         
